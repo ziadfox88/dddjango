@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Share a post
+{% endblock title %}
+
+{% block content %}
+    {% if sent %}
+        <h1>Post shared successfully</h1>
+        <p> "{{post.title}}" was successfully send to {{ form.cleaned_date.to }}. </p>
+        <a href="{% url 'post_list' %}">Back to the post list</a>
+    {% else %}
+        <h1>Share "{{post.title}}" by email </h1>
+        <form  method="post">
+            {{ form.as_p }}
+            {% csrf_token %}
+            <input type="submit" value="Send e-mail">
+        </form>
+    {% endif %}
+{% endblock content %}
