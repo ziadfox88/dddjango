@@ -131,4 +131,4 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = 'ziadfox888@gmail.com'
-EMAIL_HOST_PASSWORD = 'zgoh prko fbgd njvc'
+EMAIL_HOST_PASSWORD = 'password22'
