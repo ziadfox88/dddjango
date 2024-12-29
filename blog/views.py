@@ -4,10 +4,11 @@ from .models import Post
 from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
 from django.views.generic import ListView
 from django.core.mail import send_mail
-from .forms import EmailPostForm,CommentForm
+from .forms import EmailPostForm,CommentForm,SearchForm
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
 from django.db.models import Count
+from django.contrib.postgres.search import SearchVector
 
 # Create your views here.
 def post_list(request,tag_slug=None):
@@ -87,3 +88,16 @@ def post_comment(request, post_id):
             comment.save()
     return render(request, 'post_comment.html', {'post': post,
                                                 'form': form,'comment':comment})
+    
+def post_search(request):
+    form = SearchForm()
+    query = None
+    results = []
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            results = Post.objects.annotate(search=SearchVector('title','body'),) .filter(search=query)
+    return render(request, 'search.html', {'form': form,
+                                                'query': query,
+                                                'results': results})
