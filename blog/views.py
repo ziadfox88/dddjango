@@ -7,8 +7,9 @@ from django.core.mail import send_mail
 from .forms import EmailPostForm,CommentForm,SearchForm
 from django.views.decorators.http import require_POST
 from taggit.models import Tag
-from django.db.models import Count
-from django.contrib.postgres.search import SearchVector
+from django.db.models import Count,Q
+from django.contrib.postgres.search import SearchVector,SearchQuery,SearchRank
+from django.contrib import messages
 
 # Create your views here.
 def post_list(request,tag_slug=None):
@@ -89,6 +90,7 @@ def post_comment(request, post_id):
     return render(request, 'post_comment.html', {'post': post,
                                                 'form': form,'comment':comment})
     
+    '''
 def post_search(request):
     form = SearchForm()
     query = None
@@ -97,7 +99,23 @@ def post_search(request):
         form = SearchForm(request.GET)
         if form.is_valid():
             query = form.cleaned_data['query']
-            results = Post.objects.annotate(search=SearchVector('title','body'),) .filter(search=query)
+            search_vector = SearchVector('title','body')
+            results = Post.objects.annotate(search=search_vector,rank=SearchRank(search_vector,SearchQuery(query)).filter(search=search_query).order_by('-rank')
     return render(request, 'search.html', {'form': form,
                                                 'query': query,
                                                 'results': results})
+    
+    '''
+    
+    
+def search(request):
+    query = None
+    results = []
+    message = None
+    if request.method == "POST":
+        query = request.POST.get('query')
+        if query:
+            results = Post.objects.filter(Q(title__icontains=query) | Q(body__icontains=query))
+            if not results:
+                message = 'No results found. Please try again.'
+    return render(request, "search.html", {'query': query, 'results': results, 'message': message})

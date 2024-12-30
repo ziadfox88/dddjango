@@ -2,7 +2,9 @@
 {% load blog_tags %}
 
 {% block title %}Search results{% endblock title %}
-{% block content %}
+
+<!--
+    
     <h1>Search results</h1>
     {% if query %}
         <h2>Results for "{{ query }}"</h2>
@@ -30,4 +32,39 @@
         </form>
         
     {% endif %}
+-->
+
+{% block content %}
+<br>
+<br>
+<br>
+<br>
+<div class="card-body">
+    <form action="{% url "search" %}" method="Post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Search for Products" name="query" value="{{ request.GET.query }}">
+        </div>
+        <button type="submit" class="btn btn-secondary">Search</button>
+    </form>
+</div>
+{% if query %}
+    <h2>Results for "{{ query }}"</h2>
+    <h3>
+        {% with results.count as total_results %}
+            {{ total_results }} result{{ total_results|pluralize }}
+        {% endwith %}
+    </h3>
+    {% for post in results %}
+        <h4>
+            <a href="{{ post.get_absolute_url }}">
+                {{ post.title }}
+            </a>
+        </h4>
+        {{ post.body|markdown|truncatewords:30 }}
+    {% empty %}
+        <p>There are no results for your query.</p>
+    {% endfor %}
+    <p><a href="{% url "search" %}">Search again</a></p>
+{% endif %}
 {% endblock content %}
